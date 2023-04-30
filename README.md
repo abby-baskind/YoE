@@ -57,7 +57,7 @@ I selected the last 20 years of the model.
 
 ### Past: 1-15-1850 to 12-15-1879
 
-For a reconstruction of the past, I recommend the first available 30 years of the model. Remember, the historical model starts in 1850. While a longer climatology (e.g. 50 years) might be more robust, given how late the model starts, I contend climatologies past 1880 would begin showing signs of anthropogenic influence. 
+For a reconstruction of the past, I recommend the first available 20 years of the model. Remember, the historical model starts in 1850. While a longer climatology (e.g. 50 years) might be more robust, given how late the model starts, I contend climatologies past 1880 would begin showing signs of anthropogenic influence. Moreover, time periods longer than 20 years overwhelm the large Pangeo kernel. If necessary, I can upgrade to a huge kernel, but that is a lot of computing power.
 
 ### Future
 
