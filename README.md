@@ -1,8 +1,8 @@
+# Model Retrieval 
+
 # `GFDL-ESM4.gr.historical.Omon.r1i1p1f1`
 
 The selected CMIP6 model is GFDL-ESM4 (Dunne et al., 2020; Stock et al., 2020). It has been regridded onto a 1°x1° lat-lon grid. The `historical` experiment on the `Omon` table runs from 1-15-1850 to 12-15-2014 with data provided monthly. I have selected the first ensemble member, `r1i1p1f1`, as that is the only one provided.
-
-## Model Retrieval 
 
 Model output was retrieved and processed on Pangeo [(Abernathy et al., 2021, Computing in Science and Engineering)](https://par.nsf.gov/servlets/purl/10287683) with a variety of key open-source Python packages. All these packages are preinstalled on the Pangeo platform.
 * `xmip` [(Busecke, 2021)](https://cmip6-preprocessing.readthedocs.io/en/latest/)
