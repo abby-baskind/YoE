@@ -40,12 +40,19 @@ results = pyco2.sys(par1=ds['talk']*conv,par2=ds['dissic']*conv,
 ``` 
 ## Detrending Data
 
-The manuscript suggests detrending "1.89 µatm yr-1 for fCO2, -0.0018 yr-1 for pH and -0.0078 yr-1 for Ω from 1980s to 2010s (Bates et al., 2014)." The SOCAT data is currently detrended, referenced to the minimum available year, which varies spatially. For the model, I referenced to 1980, as suggested by the manuscript. This means, as it currently stands, the detrending is inconsistent between SOCAT and the model, and we must decide on a consistent reference year. The detrending in the model data is done as follows:
+The manuscript suggests detrending "1.89 µatm yr-1 for fCO2, -0.0018 yr-1 for pH and -0.0078 yr-1 for Ω from 1980s to 2010s (Bates et al., 2014)." For the model and for updated SOCAT data, I referenced to 1980, as suggested by the manuscript. The detrending in the model data is done as follows:
 
 ```python
 ds['fugacity_detrended'] = (ds['fugacity'] -  1.89 * (ds['fugacity'].time.dt.year - 1980)) * xr.ones_like(ds['talk'])
 ds['ph_detrended'] = (ds['ph'] + 0.0018 * (ds['ph'].time.dt.year - 1980)) * xr.ones_like(ds['talk'])
 ds['omega_detrended'] = (ds['omega'] + 0.0078 * (ds['omega'].time.dt.year - 1980)) * xr.ones_like(ds['talk'])
+```
+SOCAT detrending done as follows:
+
+```Matlab
+tem2_lon_lat(:,SOCAT.fCO2rec_detrended)=tem2_lon_lat(:,SOCAT.fCO2rec)-1.89*(tem2_lon_lat(:,SOCAT.yr)-1980);
+tem2_lon_lat(:,SOCAT.pH_detrended)=tem2_lon_lat(:,SOCAT.pH)+0.0018*(tem2_lon_lat(:,SOCAT.yr)-1980);
+tem2_lon_lat(:,SOCAT.OmegaAr_detrended)=tem2_lon_lat(:,SOCAT.OmegaAr)+0.0078*(tem2_lon_lat(:,SOCAT.yr)-1980);
 ```
 
 ## Time Selection
@@ -67,15 +74,21 @@ There are multiple SSPs to choose from. SSPs are first categorized by scenario n
 
 The SSP is then further characterized by a 2100 climate forcing similar to the previous RCPs: 2.6 W/m2, 4.5 W/m2, 7.0 W/m2, and 8.5 W/m2. Models are required to publish "Tier 1" experiments, which are SSP5-8.5, SSP3-7.0, SSP2-4.5, and SSP1-2.6. Further description of the SSP experiments can be found in [O'Neill et al. (2016, Geosci. Model Dev.)](https://gmd.copernicus.org/articles/9/3461/2016/).
 
-# Restructured SOCAT data
+# SOCAT
+
+## Updated SOCAT retrieval
+
+I updated the SOCAT processing script (MATLAB) written by Hongjie (`VAR_SOCAT_test.m`). The changes largely reflect updates in the CO2SYS MATLAB package. This means we added arguments for NH4 and H2S, both of which are set to 0 in this context. As well, we added arguments for the boron-to-salinity ratio, set to `2` to reference Lee 2010, and for the KHF dissociation constant, set to `2` to reference Perez & Fraga, 1987. The updated CO2SYS uses filler values of -999, so we added in a line that checks for negative values of key CO2SYS outputs and replaced those with `NaN`.
+
+The use of the deprecated CSIRO package in LIAR remains.
+
+## Restructured SOCAT data for Python
 
 I restructured the SOCAT data calculated by Hongjie using `xarray` to make the structure more similar to the model output. As part of this restructuring, I had to adjust latitude and longitude. The model's lat-lon points are half-degrees (i.e. -89.5, -88.5, -87.5, etc.), whereas SOCAT's lat-lon points are whole degrees (i.e. -90, -89, -88, etc.). So I could compare like grid cells, I added 0.5 to SOCAT's coordinates. This may cause a slight error, but I content the error is minimal and otherwise hard to avoid, as the model does not provide data on the exact coordinates as SOCAT.
 
-# Provided Data Files
-* `SOCAT_akb.nc`: restructured SOCAT data, based on Hongjie's calculations
-* `GFDLESM4historical.nc`: GFDL-ESM4 historical run 1995 to 2014 without calculated Omega, not time averaged
-* `GFDLESM4historical_omega.nc`: GFDL-ESM4 historical run 1995 to 2014 with calculated Omega, not time averaged
-* `GFDLESM4_SOCAT_Apr30.csv`: detrended standard deviations for every grid cell where SOCAT data exists
+# [Buoy Data](https://data.pmel.noaa.gov/pmel/erddap/files/all_pmel_co2_moorings/)
+
+Buoy data retrieval is automated by `buoydata_retrieval.py`. Output is written to a Google sheet in the Wang Lab shared drive. fCO2 and OmegaAr were added using PyCO2SYS.
 
 
 
