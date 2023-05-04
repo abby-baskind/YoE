@@ -114,7 +114,6 @@ for i in datalist:
 # `reset_index()` solves this
 df0 = df.dropna(how = 'any')
 dff = df0.reset_index(drop=True)
-dff
 
 # -----------------------------------------------------------------------------------------|
 # # Round coordinates to match model coordinates
@@ -140,9 +139,21 @@ for i in dff.index:
     dff['longitude'][i] = finallon
     
 # -----------------------------------------------------------------------------------------|
-# # Round coordinates to match model coordinates
+# # Solve for fugacity and Omega using PyCO2SYS; add to data                               |
+#                                                                                          |
+# INPUTS                                                                                   |
+# > `pCO2_sw`: partial pressure of CO2 in seawater [uatm] -- type `4`                      |
+#                                                                                          |
+# > `pH_sw`: seawater pH -- type `3`                                                       |
+#                                                                                          |
+# > `SSS`: sea surface salinity                                                            |
+#                                                                                          |
+# > `SST`: sea surface temperature [degC]                                                  | 
 # -----------------------------------------------------------------------------------------|
 
+results = pyco2.sys(par1=dff['pCO2_sw'],par2=dff['pH_sw'],par1_type=4,par2_type=3,salinity = dff['SSS'], temperature = dff['SST'])
+dff['fCO2'] = results['fCO2']
+dff['OmegaAr'] = results['saturation_aragonite']
 
 # -----------------------------------------------------------------------------------------|
 # # Write to spreadsheet shared to Wang Lab Drive
