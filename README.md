@@ -40,19 +40,20 @@ results = pyco2.sys(par1=ds['talk']*conv,par2=ds['dissic']*conv,
 ``` 
 ## Detrending Data
 
-The manuscript suggests detrending "1.89 µatm yr-1 for fCO2, -0.0018 yr-1 for pH and -0.0078 yr-1 for Ω from 1980s to 2010s (Bates et al., 2014)." For the model and for updated SOCAT data, I referenced to 1980, as suggested by the manuscript. The detrending in the model data is done as follows:
+The manuscript suggests detrending "1.89 µatm yr-1 for fCO2, -0.0018 yr-1 for pH and -0.0078 yr-1 for Ω from 1980s to 2010s (Bates et al., 2014)." For the model and for updated SOCAT data, I referenced to 2000. The detrending in the model data is done as follows:
 
 ```python
-ds['fugacity_detrended'] = (ds['fugacity'] -  1.89 * (ds['fugacity'].time.dt.year - 1980)) * xr.ones_like(ds['talk'])
-ds['ph_detrended'] = (ds['ph'] + 0.0018 * (ds['ph'].time.dt.year - 1980)) * xr.ones_like(ds['talk'])
-ds['omega_detrended'] = (ds['omega'] + 0.0078 * (ds['omega'].time.dt.year - 1980)) * xr.ones_like(ds['talk'])
+ds['fugacity_detrended'] = (ds['fugacity'] -  1.89 * (ds['fugacity'].time.dt.year - 2000)) * xr.ones_like(ds['talk'])
+ds['ph_detrended'] = (ds['ph'] + 0.0018 * (ds['ph'].time.dt.year - 2000)) * xr.ones_like(ds['talk'])
+ds['omega_detrended'] = (ds['omega'] + 0.0078 * (ds['omega'].time.dt.year - 2000)) * xr.ones_like(ds['talk'])
 ```
 SOCAT detrending done as follows:
 
 ```Matlab
-tem2_lon_lat(:,SOCAT.fCO2rec_detrended)=tem2_lon_lat(:,SOCAT.fCO2rec)-1.89*(tem2_lon_lat(:,SOCAT.yr)-1980);
-tem2_lon_lat(:,SOCAT.pH_detrended)=tem2_lon_lat(:,SOCAT.pH)+0.0018*(tem2_lon_lat(:,SOCAT.yr)-1980);
-tem2_lon_lat(:,SOCAT.OmegaAr_detrended)=tem2_lon_lat(:,SOCAT.OmegaAr)+0.0078*(tem2_lon_lat(:,SOCAT.yr)-1980);
+REF_YEAR = 2000;
+tem2_lon_lat(:,SOCAT.fCO2rec_detrended)=tem2_lon_lat(:,SOCAT.fCO2rec)-1.89*(tem2_lon_lat(:,SOCAT.yr)-REF_YEAR);
+tem2_lon_lat(:,SOCAT.pH_detrended)=tem2_lon_lat(:,SOCAT.pH)+0.0018*(tem2_lon_lat(:,SOCAT.yr)-REF_YEAR);
+tem2_lon_lat(:,SOCAT.OmegaAr_detrended)=tem2_lon_lat(:,SOCAT.OmegaAr)+0.0078*(tem2_lon_lat(:,SOCAT.yr)-REF_YEAR);
 ```
 
 ## Time Selection
@@ -60,7 +61,7 @@ Only after calculating new variables and detrending the data did I take a mean a
 
 ### Present: 1-15-1995 to 12-15-2014
 
-I selected the last 20 years of the model.
+I selected the last 20 years of the model. Using the historical simulation.
 
 ### Past: 1-15-1850 to 12-15-1879
 
