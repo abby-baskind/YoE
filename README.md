@@ -40,13 +40,9 @@ results = pyco2.sys(par1=ds['talk']*conv,par2=ds['dissic']*conv,
 ``` 
 ## Detrending Data
 
-<<<<<<< HEAD
 As of 6 May 2023 I am detrending from 2000
 
 The manuscript suggests detrending "1.89 µatm yr-1 for fCO2, -0.0018 yr-1 for pH and -0.0078 yr-1 for Ω from 1980s to 2010s (Bates et al., 2014)." For the model and for updated SOCAT data, I referenced to 1980, as suggested by the manuscript. The detrending in the model data is done as follows:
-=======
-The manuscript suggests detrending "1.89 µatm yr-1 for fCO2, -0.0018 yr-1 for pH and -0.0078 yr-1 for Ω from 1980s to 2010s (Bates et al., 2014)." For the model and for updated SOCAT data, I referenced to 2000. The detrending in the model data is done as follows:
->>>>>>> 986f462e21ba373f692673782a04ff1ea180bdd3
 
 ```python
 ds['fugacity_detrended'] = (ds['fugacity'] -  1.89 * (ds['fugacity'].time.dt.year - 2000)) * xr.ones_like(ds['talk'])
