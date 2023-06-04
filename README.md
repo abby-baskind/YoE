@@ -14,15 +14,12 @@ Model output was retrieved and processed on Pangeo [(Abernathy et al., 2021, Com
 
 ## Variables
 
-I selected the following variables. For 3D variables (i.e. not surface variables), I selected the first depth level, which corresponds to 2.5m depth. In a future version, I should look for surface variables to replace these.
-* `talk`: Total Alkalinity [mol m-3]
-* `co3sataragos`: Surface Mole Concentration of Carbonate Ion in Equilibrium with Pure Aragonite in Sea Water [mol m-3]
-* `fgco2`: Surface Downward Flux of Total CO2 [kg m-2 s-1]
-* `co3os`: Surface Carbonate Ion Concentration [mol m-3]
+I selected the following variables which are surface variables. 
+* `talkos`: Total Alkalinity [mol m-3]
 * `sos`: Sea Surface Salinity [0.001]
-* `ph`: ph [Total Scale]
+* `phos`: ph [Total Scale]
 * `tos`: Sea Surface Temperature [degC]
-* `dissic`: Dissolved Inorganic Carbon Concentration [mol m-3]
+* `dissicos`: Dissolved Inorganic Carbon Concentration [mol m-3]
 
 ### Calculated Variables
 
@@ -58,6 +55,13 @@ tem2_lon_lat(:,SOCAT.pH_detrended)=tem2_lon_lat(:,SOCAT.pH)+0.0018*(tem2_lon_lat
 tem2_lon_lat(:,SOCAT.OmegaAr_detrended)=tem2_lon_lat(:,SOCAT.OmegaAr)+0.0078*(tem2_lon_lat(:,SOCAT.yr)-REF_YEAR);
 ```
 
+Buoy detrending done as follows:
+```python
+df['fCO2_detrended'] = (df['fCO2'] -  1.89 * (df['datetime'].dt.year - 2000)) 
+df['ph_detrended'] = (df['pH_sw'] + 0.0018 * (df['datetime'].dt.year - 2000)) 
+df['OmegaAr_detrended'] = (df['OmegaAr'] + 0.0078 * (df['datetime'].dt.year - 2000)) 
+```
+
 ## Time Selection
 Only after calculating new variables and detrending the data did I take a mean and standard deviation over time. 
 
@@ -67,15 +71,17 @@ I selected the last 20 years of the model. Using the historical simulation.
 
 ### Past: 1-15-1850 to 12-15-1879
 
-For a reconstruction of the past, I recommend the first available 20 years of the model. Remember, the historical model starts in 1850. While a longer climatology (e.g. 50 years) might be more robust, given how late the model starts, I contend climatologies past 1880 would begin showing signs of anthropogenic influence. Moreover, time periods longer than 20 years overwhelm the large Pangeo kernel. If necessary, I can upgrade to a huge kernel, but that is a lot of computing power.
+For a reconstruction of the past, I took decadal means from 1850 to 2000 and saved those to a local dataset.
 
 ### Future
 
-I have yet to decide which model run to use for our future projection. SSP experiments on `Omon` tables start at 1-15-2015 are initialized from the historical experiment, so they form a continuous record, but their forcings are not based on observation.
+SSP experiments on `Omon` tables start at 1-15-2015 are initialized from the historical experiment, so they form a continuous record, but their forcings are not based on observation.
 
 There are multiple SSPs to choose from. SSPs are first categorized by scenario numbers 1 through 5, with SSP1 being the most sustainable model, SSP2 being a middle of the road model, SSP3 being a model characterized by regional rivalry, SSP4 being a model characterized by widespread inequity, and SSP5 being a model of continued fossil-fuel development. 
 
 The SSP is then further characterized by a 2100 climate forcing similar to the previous RCPs: 2.6 W/m2, 4.5 W/m2, 7.0 W/m2, and 8.5 W/m2. Models are required to publish "Tier 1" experiments, which are SSP5-8.5, SSP3-7.0, SSP2-4.5, and SSP1-2.6. Further description of the SSP experiments can be found in [O'Neill et al. (2016, Geosci. Model Dev.)](https://gmd.copernicus.org/articles/9/3461/2016/).
+
+So far, I have monthly future data from the `ssp245` run beginning in 2015 until 2060.
 
 # SOCAT
 
@@ -89,9 +95,9 @@ The use of the deprecated CSIRO package in LIAR remains.
 
 I restructured the SOCAT data calculated by Hongjie using `xarray` to make the structure more similar to the model output. As part of this restructuring, I had to adjust latitude and longitude. The model's lat-lon points are half-degrees (i.e. -89.5, -88.5, -87.5, etc.), whereas SOCAT's lat-lon points are whole degrees (i.e. -90, -89, -88, etc.). So I could compare like grid cells, I added 0.5 to SOCAT's coordinates. This may cause a slight error, but I content the error is minimal and otherwise hard to avoid, as the model does not provide data on the exact coordinates as SOCAT.
 
-# [Buoy Data](https://data.pmel.noaa.gov/pmel/erddap/files/all_pmel_co2_moorings/)
+# [Buoy Data](https://www.ncei.noaa.gov/access/ocean-carbon-acidification-data-system/oceans/Moorings/ndp097.html)
 
-Buoy data retrieval is automated by `buoydata_retrieval.py`. Output is written to a Google sheet in the Wang Lab shared drive. fCO2 and OmegaAr were added using PyCO2SYS.
+Buoy data retrieval is done in `buoydata_retrieval_dev.ipynb`. The buoy data had to be broken up into 2 sets. The first is buoy data with pCO2 AND pH. This is sufficient data to calculate fCO2 and OmegaAr using `PyCO2SYS`. The second is buoy data with pCO2 but NO pH. In order to solve for fCO2 and OmegaAr, we need at least 1 more carbonate system parameter. Thus, we used the [LIAR method](https://github.com/BRCScienceProducts/LIRs) from [Carter et al., 2017](https://aslopubs.onlinelibrary.wiley.com/doi/full/10.1002/lom3.10232). Summary data are written to a Google sheet in the Wang Lab shared drive. Granular data were saved locally due to file size.
 
 
 
