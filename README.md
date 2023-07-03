@@ -37,7 +37,7 @@ results = pyco2.sys(par1=ds['talk']*conv,par2=ds['dissic']*conv,
 ``` 
 ## Detrending Data
 
-As of 6 May 2023 I am detrending from 2000
+As of 6 May 2023 I am detrending from 2000 *only for present data* as it applies to variability.
 
 The manuscript suggests detrending "1.89 µatm yr-1 for fCO2, -0.0018 yr-1 for pH and -0.0078 yr-1 for Ω from 1980s to 2010s (Bates et al., 2014)." For the model and for updated SOCAT data, I referenced to 1980, as suggested by the manuscript. The detrending in the model data is done as follows:
 
@@ -103,17 +103,24 @@ Buoy data retrieval is done in `buoydata_retrieval_dev.ipynb`. The buoy data had
 # Adjusted Natural Variability in GFDL
 
 ## Combined Data
-In order to adjust the globally resolved "natural variability" of our 3 metrics (pH, Omega, and fugacity) from GFDL, we compare the detrended standard deviation of each metric from (A) both SOCAT (across all available time, meeting certain data requirements outlined in the manuscript) and GFDL (inclusive of all monthly data from 1995-2015 in the historical simulation), and from (B) PMEL buoys (across all available time, meeting certain data requirements outlined in the manuscript) and GFDL (inclusive of all monthly data from 1995-2015 in the historical simulation). The data were compiled into 2 CSVs. The first (`GFDLESM4_SOCAT_May21.csv`) gives the SOCAT standard deviation of pH, Omega, and fugacity and the GFDL standard deviation of pH, Omega, and fugacity at each coordinate point where both SOCAT and GFDL data existed. This is to say, much of the GFDL data was omitted, since it had no SOCAT data for comparison. Similarly, the second dataset (`allbuoys_GFD_June18.csv`) gives the PMEL buoy standard deviation of pH, Omega, and fugacity and the GFDL standard deviation of pH, Omega, and fugacity at each coordinate point where both PMEL buoy and GFDL data existed. This is to say, the dataset only includes the ~34 coordinate points where buoy data was available.
+In order to adjust the globally resolved "natural variability" of our 3 metrics (pH, Omega, and fugacity) from GFDL, we compare the detrended standard deviation of each metric from (A) both SOCAT (across all available time, meeting certain data requirements outlined in the manuscript) and GFDL (inclusive of all monthly data from 1995-2015 in the historical simulation), and from (B) PMEL buoys (across all available time, meeting certain data requirements outlined in the manuscript) and GFDL (inclusive of all monthly data from 1995-2015 in the historical simulation). The data were compiled into 2 CSVs. The first (`GFDLESM4_SOCAT_June25.csv`) gives the SOCAT standard deviation of pH, Omega, and fugacity and the GFDL standard deviation of pH, Omega, and fugacity at each coordinate point where both SOCAT and GFDL data existed. This is to say, much of the GFDL data was omitted, since it had no SOCAT data for comparison. The variability in the SOCAT data, as of 3 July 2023, was taken from daily means in each grid cell, in an effort to make the scalesof variability between the SOCAT data and the GFDL data comparable. This results in a negligible difference in the data, as for each day in each grid cell, so few measurements are available. Similarly, the second dataset (`allbuoys_GFD_June18.csv`) gives the PMEL buoy standard deviation of pH, Omega, and fugacity and the GFDL standard deviation of pH, Omega, and fugacity at each coordinate point where both PMEL buoy and GFDL data existed. This is to say, the dataset only includes the ~30 coordinate points where buoy data was available.
 
-## Outlier Removal 
+## Linear Correlation Between SOCAT and GFDL-ESM4 
+The calculated variabilities for each of our 3 carbonate parameters in SOCAT (dependent variable) was linearly correlated with the same for GFDL-ESM4 (independent variable). The points were colormapped with total ocean depth, as represented by GFDL-ESM4, as a quick and dirty proxy for coastal and ocean locations. Outliers were not removed. Thus, these correlations include all of the data. The $R^2$ values for fCO2, pH, and Ω are, respectively, 0.19, 0.396, and 0.437.
 
-`adjust_variability_dev.ipynb` is the current method of variability adjustment. First, we remove outliers that may skew our linear model. For the GFDL + SOCAT data, I removed outliers by eliminating points where SOCAT Std Fugacity and GFDL Std Fugacity were more than 2 standard deviations away from the global mean SOCAT/GFDL Std Fugacity. This ended up removing outliers from the other metrics as well. For GFDL + Buoy data, I removed outliers by eliminating points where Buoy Std Fugacity, pH, and Omega were more than 2 standard deviations away from the global mean Buoy Std. This removed 5 buoy sites out of 34 from the analysis. With so few buoys already, we did not apply the outlier removal method to GFDL metrics.
+![Linear adjustment for natural variability](GFDL_SOCAT_STD_All_NoOutliers.png) 
+
+I then divided the data by depth. "Shallow" indicates locations where total depth is less than 1500 meters. "Deep" indicates locations where total depth is greater than 1500 meters. Independent linear correlations were done for shallow and deep locations. No outliers were removed yet. The strength of the correlations improved for (A) shallow pH, (B) deep Ω, and (C) shallow fugacity. The strength of the correlations weakened for (A) deep pH, (B) shallow Ω, and (C) deep fugacity.
+
+Then, I attempted to remove outliers for the shallow and deep correlations. I excluded any data points where Cook's distance exceeded three times the mean Cook's distance. The strength of the correlations modestly improved with the omission of outliers for (A) deep pH, (B) deep fCO2, (C) shallow Ω, and (D) deep Ω. The strength of the correlations worsened with the omissions of outliers for (A) shallow pH and (B) shallow fCO2.
+
+![Linear adjustment for natural variability](VARmodel_VARsocat.png)
 
 ## Linear Adjustment
 
-![Linear adjustment for natural variability](GFDL_SOCAT_STD_Linear_NoOutliers.png) 
 ![Linear adjustment for natural variability](GFDL_Buoy_STD_Linear_NoOutliers.png)
 
+![Linear adjustment for natural variability](VARmodel_VARbuoy.png)
 
 
 
